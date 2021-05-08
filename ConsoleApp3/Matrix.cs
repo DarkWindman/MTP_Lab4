@@ -5,78 +5,39 @@ namespace ConsoleApp3
 {
     public class Matrix
     {
-        public int[] a { private set; get; }
-        public int[] b { private set; get; }
-        public int[] c { private set; get; }
-        public int[] l;
-        public int[] j;
-        public int[] k;
-    
-        private static Barrier barrier = new Barrier(3);
+        private readonly Barrier barrier;
+        private readonly int[,] _matrixArray;
 
-        public Matrix(int[] a, int[] b, int[] c)
+        public Matrix( int[,] matrixArray)
         {
-            this.a = a;
-            this.b = b;
-            this.c = c;
+            _matrixArray = matrixArray;
+            barrier = new Barrier(matrixArray.GetLength(0));
         }
 
-        public void line1(Matrix x1, Matrix x2)
+        public int this[int i, int j]
         {
-            int x = x1.a[0] + x2.a[0];
-            int y = x1.a[1] + x2.a[1];
-            int z = x1.a[2] + x2.a[2];
-            int[] a1 = new int[3] { x, y, z };
-            l = a1;
+            get { return _matrixArray[i, j]; }
         }
-        public void line2(Matrix x1, Matrix x2)
-        {
-            int x = x1.b[0] + x2.b[0];
-            int y = x1.b[1] + x2.b[1];
-            int z = x1.b[2] + x2.b[2];
-            int[] b1 = new int[3] { x, y, z };
-            j = b1;
-        }
-        public void line3(Matrix x1, Matrix x2)
-        {
-            int x = x1.c[0] + x2.c[0];
-            int y = x1.c[1] + x2.c[1];
-            int z = x1.c[2] + x2.c[2];
-            int[] c1 = new int[3] { x, y, z };
-            k = c1;
-        }
+
         public Matrix oursum(Matrix x, Matrix y)
         {
-            for (int i = 0; i < barrier.ParticipantCount; i++)
+            var ud = new int[_matrixArray.GetLength(0), _matrixArray.GetLength(1)];
+            for (var i = 0; i < _matrixArray.GetLength(0); i++)
             {
-                var thread = new Thread(Matrixadd);
-                if(i == 1)
+                var thread = new Thread(BarrierTread);
+                for (int j = 0; j < _matrixArray.GetLength(1); j++)
                 {
-                    x.line1(x, y);
-                }
-                else if(i == 2)
-                {
-                    x.line2(x, y);
-                }
-                else
-                {
-                    x.line3(x, y);
+                    ud[i,j] = x._matrixArray[i, j] + y._matrixArray[i,j];
                 }
                 thread.Start();
             }
-           return x.resultmatrix();
+            var result = new Matrix(ud);
+            return result;
         }
-        private static void Matrixadd()
+        private void BarrierTread()
         {
             Console.WriteLine("It is the thread");
             barrier.SignalAndWait();
-        }
-        public Matrix resultmatrix()
-        {
-            Matrix result = new Matrix(l, j, k);
-            Console.WriteLine(result.a[0]);
-
-            return result;
         }
     }
 }
