@@ -7,7 +7,10 @@ namespace ConsoleApp3
     {
         private readonly Barrier barrier;
         private readonly int[,] _matrixArray;
-
+        int[,] ud;
+        public Matrix a { get; set; }
+        public Matrix b { get; set; }
+        int l = 0;
         public Matrix( int[,] matrixArray)
         {
             _matrixArray = matrixArray;
@@ -21,14 +24,12 @@ namespace ConsoleApp3
 
         public Matrix oursum(Matrix x, Matrix y)
         {
-            var ud = new int[_matrixArray.GetLength(0), _matrixArray.GetLength(1)];
+            a = x;
+            b = y;
+            ud = new int[_matrixArray.GetLength(0), _matrixArray.GetLength(1)];
             for (var i = 0; i < _matrixArray.GetLength(0); i++)
             {
                 var thread = new Thread(BarrierTread);
-                for (int j = 0; j < _matrixArray.GetLength(1); j++)
-                {
-                    ud[i,j] = x._matrixArray[i, j] + y._matrixArray[i,j];
-                }
                 thread.Start();
             }
             var result = new Matrix(ud);
@@ -37,7 +38,13 @@ namespace ConsoleApp3
         private void BarrierTread()
         {
             Console.WriteLine("It is the thread");
+                for (int j = 0; j < _matrixArray.GetLength(1); j++)
+                {
+                    ud[l, j] = a._matrixArray[l, j] + b._matrixArray[l, j];
+                }
+            l++;
             barrier.SignalAndWait();
         }
     }
+
 }
