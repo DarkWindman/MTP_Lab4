@@ -42,7 +42,7 @@ namespace ConsoleApp3
                 {
                     ud[l, j] = a._matrixArray[l, j] + b._matrixArray[l, j];
                 }
-            l++;
+            Interlocked.Increment(ref l);
             barrier.SignalAndWait();
         }
     }
